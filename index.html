@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>7 Day Time Picker</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="toolbar" aria-label="Calendar controls">
+        <div class="brand">
+          <h1>7 Day Time Picker</h1>
+          <p id="weekRange"></p>
+        </div>
+
+        <div class="controls">
+          <label class="field">
+            <span>Start</span>
+            <input id="startDate" type="date" />
+          </label>
+
+          <label class="field compact">
+            <span>Step</span>
+            <select id="stepMinutes">
+              <option value="15">15m</option>
+              <option value="30" selected>30m</option>
+              <option value="60">60m</option>
+            </select>
+          </label>
+
+          <label class="field compact">
+            <span>From</span>
+            <select id="dayStart"></select>
+          </label>
+
+          <label class="field compact">
+            <span>To</span>
+            <select id="dayEnd"></select>
+          </label>
+
+          <label class="field compact">
+            <span>Join</span>
+            <select id="rangeJoiner">
+              <option value="or" selected>or</option>
+              <option value="&">&amp;</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="prevWeek" class="icon-button" type="button" aria-label="Previous 7 days" title="Previous 7 days">‹</button>
+          <button id="nextWeek" class="icon-button" type="button" aria-label="Next 7 days" title="Next 7 days">›</button>
+          <button id="clearSelection" type="button">Clear</button>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div class="calendar-panel" aria-label="Seven day calendar">
+          <div id="calendarGrid" class="calendar-grid"></div>
+        </div>
+
+        <aside class="output-panel" aria-label="Formatted output">
+          <div class="output-header">
+            <h2>Output</h2>
+            <button id="copyOutput" type="button">Copy</button>
+          </div>
+          <textarea id="outputText" readonly spellcheck="false" aria-label="Formatted selected times"></textarea>
+        </aside>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
