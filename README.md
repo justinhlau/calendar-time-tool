@@ -90,7 +90,7 @@ Shows installer usage.
 
 - 7-day calendar view with time running vertically.
 - Weeks always display Sunday through Saturday; choosing any date jumps to that week.
-- Click and drag to select an anchor-based time range within one day.
+- Click and drag to select an anchor-based time range within one day, even if the cursor moves horizontally across other days.
 - Drag over selected blocks to remove them.
 - Add an italic timezone label to the output preview.
 - Choose 15, 30, or 60 minute increments.

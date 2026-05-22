@@ -270,8 +270,31 @@ function endDrag() {
 }
 
 function slotFromPointerEvent(event) {
+  if (state.drag) {
+    return slotFromDragY(event.clientY);
+  }
+
   const element = document.elementFromPoint(event.clientX, event.clientY);
   return element?.closest?.(".time-slot");
+}
+
+function slotFromDragY(clientY) {
+  const slots = [
+    ...calendarGrid.querySelectorAll(`.time-slot[data-day="${state.drag.dayIndex}"]`),
+  ];
+
+  if (!slots.length) {
+    return null;
+  }
+
+  for (const slot of slots) {
+    const rect = slot.getBoundingClientRect();
+    if (clientY <= rect.bottom) {
+      return slot;
+    }
+  }
+
+  return slots[slots.length - 1];
 }
 
 function updateOutput() {
