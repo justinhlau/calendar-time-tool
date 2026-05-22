@@ -78,7 +78,7 @@ textarea:focus-visible,
 
 .toolbar {
   display: grid;
-  grid-template-columns: minmax(210px, 0.8fr) minmax(650px, 2fr) auto;
+  grid-template-columns: minmax(210px, 0.7fr) minmax(860px, 2.4fr) auto;
   gap: 16px;
   align-items: end;
   padding: 16px;
@@ -107,8 +107,9 @@ textarea:focus-visible,
 
 .controls {
   display: grid;
-  grid-template-columns: minmax(145px, 1fr) minmax(150px, 1fr) repeat(4, minmax(84px, 0.5fr));
+  grid-template-columns: minmax(145px, 1fr) 38px minmax(74px, 0.45fr) 38px minmax(150px, 1fr) repeat(4, minmax(84px, 0.5fr));
   gap: 10px;
+  align-items: end;
 }
 
 .field {
@@ -143,6 +144,15 @@ textarea:focus-visible,
   padding: 0;
   font-size: 1.45rem;
   line-height: 1;
+}
+
+.control-button {
+  align-self: end;
+}
+
+.today-button {
+  min-width: 74px;
+  padding: 0 12px;
 }
 
 .workspace {
@@ -330,14 +340,14 @@ textarea:focus-visible,
   opacity: 0;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1280px) {
   .toolbar,
   .workspace {
     grid-template-columns: 1fr;
   }
 
   .controls {
-    grid-template-columns: repeat(3, minmax(140px, 1fr));
+    grid-template-columns: minmax(145px, 1fr) 38px minmax(74px, 0.45fr) 38px minmax(150px, 1fr) repeat(4, minmax(84px, 0.5fr));
   }
 
   .actions {
@@ -350,6 +360,12 @@ textarea:focus-visible,
 
   .output-panel {
     position: static;
+  }
+}
+
+@media (max-width: 940px) {
+  .controls {
+    grid-template-columns: minmax(145px, 1fr) 38px minmax(74px, 0.45fr) 38px minmax(150px, 1fr);
   }
 }
 

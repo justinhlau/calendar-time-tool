@@ -11,6 +11,7 @@ const copyBuffer = document.querySelector("#copyBuffer");
 const copyOutput = document.querySelector("#copyOutput");
 const clearSelection = document.querySelector("#clearSelection");
 const prevWeek = document.querySelector("#prevWeek");
+const todayWeek = document.querySelector("#todayWeek");
 const nextWeek = document.querySelector("#nextWeek");
 
 const monthDayFormatter = new Intl.DateTimeFormat("en-US", {
@@ -367,6 +368,12 @@ function shiftWeek(days) {
   renderCalendar();
 }
 
+function goToToday() {
+  state.selectedDate = startOfLocalDay(new Date());
+  state.weekStart = startOfWeek(state.selectedDate);
+  renderCalendar();
+}
+
 function fallbackCopy() {
   copyBuffer.value = plainOutputText;
   copyBuffer.focus();
@@ -463,6 +470,7 @@ dayEndInput.addEventListener("change", handleVisibleHoursChange);
 joinerInput.addEventListener("change", updateOutput);
 timezoneInput.addEventListener("change", updateOutput);
 prevWeek.addEventListener("click", () => shiftWeek(-7));
+todayWeek.addEventListener("click", goToToday);
 nextWeek.addEventListener("click", () => shiftWeek(7));
 
 clearSelection.addEventListener("click", () => {
