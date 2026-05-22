@@ -5,6 +5,7 @@ A small browser tool for selecting available time blocks across a 7-day calendar
 Example output:
 
 ```text
+In Pacific Time:
 Fri May 22: 10:00a - 11:30a or 1:30p - 5:00p
 Tues May 26: 10:30a - 1:00p & 2:00p - 5:00p
 Wed May 27: 1:00p - 5:00p
@@ -90,6 +91,7 @@ Shows installer usage.
 - 7-day calendar view with time running vertically.
 - Click and drag to select time blocks.
 - Drag over selected blocks to remove them.
+- Add an italic timezone label to the output preview.
 - Choose 15, 30, or 60 minute increments.
 - Adjust visible day start and end hours.
 - Choose `or` or `&` between multiple ranges on the same day.

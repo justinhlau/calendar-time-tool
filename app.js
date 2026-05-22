@@ -1,11 +1,13 @@
 const calendarGrid = document.querySelector("#calendarGrid");
 const startDateInput = document.querySelector("#startDate");
 const stepInput = document.querySelector("#stepMinutes");
+const timezoneInput = document.querySelector("#timezoneSelect");
 const dayStartInput = document.querySelector("#dayStart");
 const dayEndInput = document.querySelector("#dayEnd");
 const joinerInput = document.querySelector("#rangeJoiner");
 const weekRange = document.querySelector("#weekRange");
 const outputText = document.querySelector("#outputText");
+const copyBuffer = document.querySelector("#copyBuffer");
 const copyOutput = document.querySelector("#copyOutput");
 const clearSelection = document.querySelector("#clearSelection");
 const prevWeek = document.querySelector("#prevWeek");
@@ -18,6 +20,8 @@ const monthDayFormatter = new Intl.DateTimeFormat("en-US", {
 
 const weekdayNames = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+let plainOutputText = "";
 
 const state = {
   weekStart: startOfLocalDay(new Date()),
@@ -259,7 +263,7 @@ function updateOutput() {
   }
 
   const joiner = ` ${joinerInput.value} `;
-  const lines = rangesByDay
+  const dayLines = rangesByDay
     .map((minutes, dayIndex) => {
       if (!minutes.length) {
         return "";
@@ -273,7 +277,20 @@ function updateOutput() {
     })
     .filter(Boolean);
 
-  outputText.value = lines.join("\n");
+  outputText.replaceChildren();
+
+  if (!dayLines.length) {
+    plainOutputText = "";
+    return;
+  }
+
+  const timezoneLine = `In ${timezoneInput.value}:`;
+  plainOutputText = [timezoneLine, ...dayLines].join("\n");
+
+  outputText.append(
+    createElement("div", "timezone-output-line", timezoneLine),
+    createElement("div", "output-days", dayLines.join("\n")),
+  );
 }
 
 function mergeMinutes(minutes) {
@@ -304,10 +321,11 @@ function shiftWeek(days) {
 }
 
 function fallbackCopy() {
-  outputText.focus();
-  outputText.select();
+  copyBuffer.value = plainOutputText;
+  copyBuffer.focus();
+  copyBuffer.select();
   document.execCommand("copy");
-  outputText.setSelectionRange(0, 0);
+  copyBuffer.setSelectionRange(0, 0);
 }
 
 function handleVisibleHoursChange() {
@@ -395,6 +413,7 @@ stepInput.addEventListener("change", () => {
 dayStartInput.addEventListener("change", handleVisibleHoursChange);
 dayEndInput.addEventListener("change", handleVisibleHoursChange);
 joinerInput.addEventListener("change", updateOutput);
+timezoneInput.addEventListener("change", updateOutput);
 prevWeek.addEventListener("click", () => shiftWeek(-7));
 nextWeek.addEventListener("click", () => shiftWeek(7));
 
@@ -408,7 +427,7 @@ copyOutput.addEventListener("click", async () => {
     if (!navigator.clipboard?.writeText) {
       throw new Error("Clipboard API unavailable");
     }
-    await navigator.clipboard.writeText(outputText.value);
+    await navigator.clipboard.writeText(plainOutputText);
   } catch {
     fallbackCopy();
   }

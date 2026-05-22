@@ -20,6 +20,19 @@
             <input id="startDate" type="date" />
           </label>
 
+          <label class="field">
+            <span>Timezone</span>
+            <select id="timezoneSelect">
+              <option value="Pacific Time" selected>Pacific Time</option>
+              <option value="Mountain Time">Mountain Time</option>
+              <option value="Central Time">Central Time</option>
+              <option value="Eastern Time">Eastern Time</option>
+              <option value="Alaska Time">Alaska Time</option>
+              <option value="Hawaii Time">Hawaii Time</option>
+              <option value="UTC">UTC</option>
+            </select>
+          </label>
+
           <label class="field compact">
             <span>Step</span>
             <select id="stepMinutes">
@@ -65,7 +78,8 @@
             <h2>Output</h2>
             <button id="copyOutput" type="button">Copy</button>
           </div>
-          <textarea id="outputText" readonly spellcheck="false" aria-label="Formatted selected times"></textarea>
+          <div id="outputText" class="output-text" role="textbox" tabindex="0" aria-readonly="true" aria-label="Formatted selected times"></div>
+          <textarea id="copyBuffer" class="copy-buffer" readonly tabindex="-1" aria-hidden="true"></textarea>
         </aside>
       </section>
     </main>
