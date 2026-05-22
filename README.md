@@ -89,6 +89,7 @@ Shows installer usage.
 ## Features
 
 - 7-day calendar view with time running vertically.
+- Weeks always display Sunday through Saturday; choosing any date jumps to that week.
 - Click and drag to select time blocks.
 - Drag over selected blocks to remove them.
 - Add an italic timezone label to the output preview.

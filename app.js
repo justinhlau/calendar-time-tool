@@ -22,9 +22,11 @@ const weekdayNames = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 let plainOutputText = "";
+const today = startOfLocalDay(new Date());
 
 const state = {
-  weekStart: startOfLocalDay(new Date()),
+  selectedDate: today,
+  weekStart: startOfWeek(today),
   stepMinutes: 30,
   visibleStart: 8 * 60,
   visibleEnd: 18 * 60,
@@ -34,6 +36,12 @@ const state = {
 
 function startOfLocalDay(date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function startOfWeek(date) {
+  const weekStart = startOfLocalDay(date);
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  return weekStart;
 }
 
 function addDays(date, days) {
@@ -93,7 +101,7 @@ function getWeekDates() {
 }
 
 function renderCalendar() {
-  startDateInput.value = dateToInputValue(state.weekStart);
+  startDateInput.value = dateToInputValue(state.selectedDate);
 
   const dates = getWeekDates();
   weekRange.textContent = `${monthDayFormatter.format(dates[0])} - ${monthDayFormatter.format(dates[6])}`;
@@ -316,6 +324,7 @@ function mergeMinutes(minutes) {
 }
 
 function shiftWeek(days) {
+  state.selectedDate = addDays(state.selectedDate, days);
   state.weekStart = addDays(state.weekStart, days);
   renderCalendar();
 }
@@ -400,7 +409,8 @@ startDateInput.addEventListener("change", () => {
     return;
   }
 
-  state.weekStart = inputValueToDate(startDateInput.value);
+  state.selectedDate = inputValueToDate(startDateInput.value);
+  state.weekStart = startOfWeek(state.selectedDate);
   renderCalendar();
 });
 
