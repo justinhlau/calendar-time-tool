@@ -182,8 +182,9 @@ function updateSlotVisual(key) {
   slot.setAttribute("aria-pressed", selected ? "true" : "false");
 
   if (state.drag) {
-    slot.classList.toggle("dragging", state.drag.mode === "add" && state.drag.touched.has(key));
-    slot.classList.toggle("drag-remove", state.drag.mode === "remove" && state.drag.touched.has(key));
+    const inCurrentRange = state.drag.rangeKeys.has(key);
+    slot.classList.toggle("dragging", state.drag.mode === "add" && inCurrentRange);
+    slot.classList.toggle("drag-remove", state.drag.mode === "remove" && inCurrentRange);
   } else {
     slot.classList.remove("dragging", "drag-remove");
   }
@@ -191,14 +192,16 @@ function updateSlotVisual(key) {
 
 function beginDrag(slot, pointerId) {
   const key = slot.dataset.key;
-  const { dayIndex } = parseSlotKey(key);
+  const { dayIndex, minutes } = parseSlotKey(key);
   const adding = !state.selected.has(key);
   state.drag = {
     dayIndex,
+    anchorMinutes: minutes,
+    baseSelected: new Set(state.selected),
     mode: adding ? "add" : "remove",
     pointerId,
     lastKey: null,
-    touched: new Set(),
+    rangeKeys: new Set(),
   };
 
   slot.setPointerCapture(pointerId);
@@ -220,20 +223,27 @@ function applyDragToSlot(slot) {
     return;
   }
 
-  const start = state.drag.lastKey ? parseSlotKey(state.drag.lastKey) : parseSlotKey(key);
-  const touched = keysBetween(state.drag.dayIndex, start.minutes, end.minutes);
+  const nextRangeKeys = new Set(keysBetween(state.drag.dayIndex, state.drag.anchorMinutes, end.minutes));
+  const affectedKeys = new Set([...state.drag.rangeKeys, ...nextRangeKeys]);
 
-  touched.forEach((nextKey) => {
-    if (state.drag.mode === "add") {
+  affectedKeys.forEach((nextKey) => {
+    const inRange = nextRangeKeys.has(nextKey);
+    const selected =
+      state.drag.mode === "add"
+        ? state.drag.baseSelected.has(nextKey) || inRange
+        : state.drag.baseSelected.has(nextKey) && !inRange;
+
+    if (selected) {
       state.selected.add(nextKey);
-    } else {
-      state.selected.delete(nextKey);
+      return;
     }
-    state.drag.touched.add(nextKey);
-    updateSlotVisual(nextKey);
+
+    state.selected.delete(nextKey);
   });
 
+  state.drag.rangeKeys = nextRangeKeys;
   state.drag.lastKey = key;
+  affectedKeys.forEach(updateSlotVisual);
   updateOutput();
 }
 
@@ -254,9 +264,9 @@ function endDrag() {
     return;
   }
 
-  const touched = [...state.drag.touched];
+  const rangeKeys = [...state.drag.rangeKeys];
   state.drag = null;
-  touched.forEach(updateSlotVisual);
+  rangeKeys.forEach(updateSlotVisual);
 }
 
 function slotFromPointerEvent(event) {
