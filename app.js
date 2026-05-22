@@ -76,13 +76,13 @@ function formatOutputDay(date) {
   return `${weekdayNames[date.getDay()]} ${monthNames[date.getMonth()]} ${date.getDate()}`;
 }
 
-function slotKey(dayIndex, minutes) {
-  return `${dayIndex}-${minutes}`;
+function slotKey(dateKey, minutes) {
+  return `${dateKey}|${minutes}`;
 }
 
 function parseSlotKey(key) {
-  const [dayIndex, minutes] = key.split("-").map(Number);
-  return { dayIndex, minutes };
+  const [dateKey, minutes] = key.split("|");
+  return { dateKey, minutes: Number(minutes) };
 }
 
 function setupHourSelects() {
@@ -131,11 +131,13 @@ function renderCalendar() {
     );
     calendarGrid.append(label);
 
-    dates.forEach((_, dayIndex) => {
-      const key = slotKey(dayIndex, minutes);
+    dates.forEach((date, dayIndex) => {
+      const dateKey = dateToInputValue(date);
+      const key = slotKey(dateKey, minutes);
       const button = createElement("button", `time-slot${minutes % 60 === 0 ? " hour-start" : ""}`);
       button.type = "button";
       button.dataset.day = String(dayIndex);
+      button.dataset.date = dateKey;
       button.dataset.minutes = String(minutes);
       button.dataset.key = key;
       button.setAttribute("aria-label", `${formatOutputDay(dates[dayIndex])} ${minutesToClock(minutes)}`);
@@ -193,10 +195,11 @@ function updateSlotVisual(key) {
 
 function beginDrag(slot, pointerId) {
   const key = slot.dataset.key;
-  const { dayIndex, minutes } = parseSlotKey(key);
+  const { dateKey, minutes } = parseSlotKey(key);
   const adding = !state.selected.has(key);
   state.drag = {
-    dayIndex,
+    dayIndex: Number(slot.dataset.day),
+    dateKey,
     anchorMinutes: minutes,
     baseSelected: new Set(state.selected),
     mode: adding ? "add" : "remove",
@@ -220,11 +223,11 @@ function applyDragToSlot(slot) {
   }
 
   const end = parseSlotKey(key);
-  if (end.dayIndex !== state.drag.dayIndex) {
+  if (end.dateKey !== state.drag.dateKey) {
     return;
   }
 
-  const nextRangeKeys = new Set(keysBetween(state.drag.dayIndex, state.drag.anchorMinutes, end.minutes));
+  const nextRangeKeys = new Set(keysBetween(state.drag.dateKey, state.drag.anchorMinutes, end.minutes));
   const affectedKeys = new Set([...state.drag.rangeKeys, ...nextRangeKeys]);
 
   affectedKeys.forEach((nextKey) => {
@@ -248,13 +251,13 @@ function applyDragToSlot(slot) {
   updateOutput();
 }
 
-function keysBetween(dayIndex, firstMinutes, lastMinutes) {
+function keysBetween(dateKey, firstMinutes, lastMinutes) {
   const start = Math.min(firstMinutes, lastMinutes);
   const end = Math.max(firstMinutes, lastMinutes);
   const keys = [];
 
   for (let minutes = start; minutes <= end; minutes += state.stepMinutes) {
-    keys.push(slotKey(dayIndex, minutes));
+    keys.push(slotKey(dateKey, minutes));
   }
 
   return keys;
@@ -299,30 +302,26 @@ function slotFromDragY(clientY) {
 }
 
 function updateOutput() {
-  const dates = getWeekDates();
-  const rangesByDay = Array.from({ length: 7 }, () => []);
+  const minutesByDate = new Map();
 
   for (const key of state.selected) {
-    const { dayIndex, minutes } = parseSlotKey(key);
-    if (dayIndex >= 0 && dayIndex < 7) {
-      rangesByDay[dayIndex].push(minutes);
+    const { dateKey, minutes } = parseSlotKey(key);
+    if (!minutesByDate.has(dateKey)) {
+      minutesByDate.set(dateKey, []);
     }
+    minutesByDate.get(dateKey).push(minutes);
   }
 
   const joiner = ` ${joinerInput.value} `;
-  const dayLines = rangesByDay
-    .map((minutes, dayIndex) => {
-      if (!minutes.length) {
-        return "";
-      }
-
+  const dayLines = [...minutesByDate]
+    .sort(([firstDate], [secondDate]) => firstDate.localeCompare(secondDate))
+    .map(([dateKey, minutes]) => {
       const ranges = mergeMinutes(minutes).map(
         ([start, end]) => `${minutesToClock(start)} - ${minutesToClock(end)}`,
       );
 
-      return `${formatOutputDay(dates[dayIndex])}: ${ranges.join(joiner)}`;
-    })
-    .filter(Boolean);
+      return `${formatOutputDay(inputValueToDate(dateKey))}: ${ranges.join(joiner)}`;
+    });
 
   outputText.replaceChildren();
 
