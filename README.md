@@ -90,7 +90,7 @@ Shows installer usage.
 
 - 7-day calendar view with time running vertically.
 - Weeks always display Sunday through Saturday; choosing any date jumps to that week.
-- Click and drag to select time blocks.
+- Click and drag to select time blocks within one day.
 - Drag over selected blocks to remove them.
 - Add an italic timezone label to the output preview.
 - Choose 15, 30, or 60 minute increments.

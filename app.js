@@ -191,8 +191,10 @@ function updateSlotVisual(key) {
 
 function beginDrag(slot, pointerId) {
   const key = slot.dataset.key;
+  const { dayIndex } = parseSlotKey(key);
   const adding = !state.selected.has(key);
   state.drag = {
+    dayIndex,
     mode: adding ? "add" : "remove",
     pointerId,
     lastKey: null,
@@ -213,10 +215,13 @@ function applyDragToSlot(slot) {
     return;
   }
 
-  const start = state.drag.lastKey ? parseSlotKey(state.drag.lastKey) : parseSlotKey(key);
   const end = parseSlotKey(key);
-  const sameDay = start.dayIndex === end.dayIndex;
-  const touched = sameDay ? keysBetween(start.dayIndex, start.minutes, end.minutes) : [key];
+  if (end.dayIndex !== state.drag.dayIndex) {
+    return;
+  }
+
+  const start = state.drag.lastKey ? parseSlotKey(state.drag.lastKey) : parseSlotKey(key);
+  const touched = keysBetween(state.drag.dayIndex, start.minutes, end.minutes);
 
   touched.forEach((nextKey) => {
     if (state.drag.mode === "add") {
